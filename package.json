@@ -1,0 +1,12 @@
+{
+  "name": "hxh-nen-sim-extended-final",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

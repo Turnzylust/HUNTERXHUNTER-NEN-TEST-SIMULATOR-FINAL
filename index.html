@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HxH Nen Simulator — Extended</title>
+<meta name="description" content="Hunter x Hunter Nen Simulator: long quiz, AI-like ability builder, auto stats, big charts, story maker." />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{ --bg:#0a0a0a; --fg:#f0f0f0; --muted:#b7b7b7; --panel:#121212; --accent:#35f06e; --accent2:#6aa8ff; --warn:#ff6a6a; }
+  body{ background:var(--bg); color:var(--fg); font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin:0; }
+  header{ padding:24px; text-align:center; background:linear-gradient(180deg, #111 0%, transparent 100%); }
+  h1{ margin:0; font-size:28px; }
+  main{ max-width:1100px; margin:0 auto; padding:16px; }
+  .phase{ display:none; }
+  .phase.active{ display:block; }
+  .card{ background:var(--panel); border:1px solid #222; border-radius:16px; padding:18px; margin:14px 0; }
+  .btn{ background:#1e1e1e; border:1px solid #333; color:#fff; padding:10px 16px; border-radius:10px; cursor:pointer; margin:6px; }
+  .btn:hover{ background:#2a2a2a; }
+  .btn.primary{ border-color:#3b9; box-shadow:0 0 0 1px #3b9 inset; }
+  .grid{ display:grid; gap:14px; }
+  @media(min-width:880px){ .grid.cols-2{ grid-template-columns:1fr 1fr; } .grid.cols-3{ grid-template-columns:repeat(3,1fr);} }
+  fieldset{ border:none; margin:0; padding:0; }
+  .q{ margin:10px 0; }
+  .q legend{ font-weight:600; margin-bottom:8px; }
+  .opt{ display:block; margin:6px 0; color:var(--muted); }
+  .pill{ display:inline-block; border:1px solid #333; border-radius:999px; padding:6px 10px; margin:4px; font-size:12px; color:#ddd; }
+  .statbar{ height:12px; background:#242424; border-radius:999px; overflow:hidden; }
+  .statbar > span{ display:block; height:100%; background:var(--accent); width:0; transition:width .5s ease; }
+  .row{ display:flex; gap:10px; align-items:center; }
+  .row > .grow{ flex:1; }
+  .note{ color:var(--muted); font-size:12px; }
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  .chartWrap{ background:#0f0f0f; border:1px solid #222; border-radius:16px; padding:12px; }
+  .big{ min-height:380px; }
+  footer{ padding:60px 20px; color:#999; text-align:center; }
+  #music-toggle{ position:fixed; right:14px; top:12px; z-index:10; }
+  img, video{ max-width:100%; border-radius:12px; border:1px solid #222; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>🪪 Hunter Exam — Nen Simulator (Extended)</h1>
+    <button id="music-toggle" class="btn">🔊 Music</button>
+    <div class="note">Longer quiz • AI-like ability builder • Auto stats • Big charts • Story maker</div>
+  </header>
+  <main>
+
+    <!-- Phase 1: Long Affinity Quiz -->
+    <section id="phase1" class="phase active">
+      <div class="card">
+        <h2>Phase 1 — Nen Affinity Assessment (Extended)</h2>
+        <p class="note">Answer each to calibrate your affinity spread across Enhancer / Emitter / Manipulator / Transmuter / Conjurer / Specialist.</p>
+      </div>
+      <form id="affinityForm" class="grid cols-2">
+        <!-- 12 questions mapping to weights for six affinities -->
+        <fieldset class="card q" data-map="Enhancer:2,Emitter:0,Manipulator:0,Transmuter:1,Conjurer:0,Specialist:0">
+          <legend>1) In a crisis, you mostly rely on…</legend>
+          <label class="opt"><input type="radio" name="q1" value="force"> Raw force and will</label>
+          <label class="opt"><input type="radio" name="q1" value="focus"> Focused bursts</label>
+          <label class="opt"><input type="radio" name="q1" value="control"> Tight control</label>
+          <label class="opt"><input type="radio" name="q1" value="adapt"> Quick adaptation</label>
+          <label class="opt"><input type="radio" name="q1" value="tools"> Tools and prep</label>
+          <label class="opt"><input type="radio" name="q1" value="odd"> Unorthodox ideas</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:1,Emitter:2,Manipulator:0,Transmuter:0,Conjurer:0,Specialist:0">
+          <legend>2) Your aura feels most like…</legend>
+          <label class="opt"><input type="radio" name="q2" value="pulse"> A loud pulse</label>
+          <label class="opt"><input type="radio" name="q2" value="beam"> A clean beam</label>
+          <label class="opt"><input type="radio" name="q2" value="strings"> Invisible strings</label>
+          <label class="opt"><input type="radio" name="q2" value="gel"> A shifting gel</label>
+          <label class="opt"><input type="radio" name="q2" value="form"> A defined form</label>
+          <label class="opt"><input type="radio" name="q2" value="void"> A strange void</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:0,Emitter:1,Manipulator:2,Transmuter:0,Conjurer:0,Specialist:0">
+          <legend>3) Combat style preference?</legend>
+          <label class="opt"><input type="radio" name="q3" value="close"> Close and decisive</label>
+          <label class="opt"><input type="radio" name="q3" value="ranged"> Mid/long bursts</label>
+          <label class="opt"><input type="radio" name="q3" value="control"> Control and setups</label>
+          <label class="opt"><input type="radio" name="q3" value="trick"> Tricky counters</label>
+          <label class="opt"><input type="radio" name="q3" value="prep"> Prepped tools</label>
+          <label class="opt"><input type="radio" name="q3" value="wild"> Whatever works</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:0,Emitter:0,Manipulator:1,Transmuter:2,Conjurer:0,Specialist:0">
+          <legend>4) Your creativity leans toward…</legend>
+          <label class="opt"><input type="radio" name="q4" value="simple"> Simple amplifications</label>
+          <label class="opt"><input type="radio" name="q4" value="direct"> Direct emission tricks</label>
+          <label class="opt"><input type="radio" name="q4" value="puppet"> Control mechanisms</label>
+          <label class="opt"><input type="radio" name="q4" value="alchemy"> Changing properties</label>
+          <label class="opt"><input type="radio" name="q4" value="summon"> Summoning forms</label>
+          <label class="opt"><input type="radio" name="q4" value="unique"> Unique concepts</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:0,Emitter:0,Manipulator:0,Transmuter:1,Conjurer:2,Specialist:0">
+          <legend>5) Relationship to objects?</legend>
+          <label class="opt"><input type="radio" name="q5" value="bare"> Bare hands</label>
+          <label class="opt"><input type="radio" name="q5" value="bullets"> Projectiles</label>
+          <label class="opt"><input type="radio" name="q5" value="strings"> Bind/control</label>
+          <label class="opt"><input type="radio" name="q5" value="coating"> Recoat/transform</label>
+          <label class="opt"><input type="radio" name="q5" value="manifest"> Manifest tools</label>
+          <label class="opt"><input type="radio" name="q5" value="myst"> Enigmatic</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:2,Emitter:0,Manipulator:0,Transmuter:0,Conjurer:0,Specialist:1">
+          <legend>6) Temperament under pressure?</legend>
+          <label class="opt"><input type="radio" name="q6" value="bold"> Bold & head-on</label>
+          <label class="opt"><input type="radio" name="q6" value="steady"> Steady & patient</label>
+          <label class="opt"><input type="radio" name="q6" value="schemer"> Scheming</label>
+          <label class="opt"><input type="radio" name="q6" value="mercurial"> Mercurial</label>
+          <label class="opt"><input type="radio" name="q6" value="method"> Methodical</label>
+          <label class="opt"><input type="radio" name="q6" value="ecc"> Eccentric</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:0,Emitter:2,Manipulator:1,Transmuter:0,Conjurer:0,Specialist:0">
+          <legend>7) Preferred range?</legend>
+          <label class="opt"><input type="radio" name="q7" value="melee"> Melee</label>
+          <label class="opt"><input type="radio" name="q7" value="mid"> Mid</label>
+          <label class="opt"><input type="radio" name="q7" value="control"> Terrain control</label>
+          <label class="opt"><input type="radio" name="q7" value="fluid"> Fluid</label>
+          <label class="opt"><input type="radio" name="q7" value="tool"> Tool-reliant</label>
+          <label class="opt"><input type="radio" name="q7" value="chaos"> Chaotic</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:0,Emitter:0,Manipulator:2,Transmuter:0,Conjurer:1,Specialist:0">
+          <legend>8) How do you prepare?</legend>
+          <label class="opt"><input type="radio" name="q8" value="train"> Grind training</label>
+          <label class="opt"><input type="radio" name="q8" value="aim"> Target drills</label>
+          <label class="opt"><input type="radio" name="q8" value="plans"> Plans & leverage</label>
+          <label class="opt"><input type="radio" name="q8" value="improv"> Improvisation</label>
+          <label class="opt"><input type="radio" name="q8" value="kit"> Gear & artifacts</label>
+          <label class="opt"><input type="radio" name="q8" value="myst"> Intuition</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:1,Emitter:0,Manipulator:0,Transmuter:0,Conjurer:2,Specialist:0">
+          <legend>9) Symbol you vibe with?</legend>
+          <label class="opt"><input type="radio" name="q9" value="fist"> Fist</label>
+          <label class="opt"><input type="radio" name="q9" value="arrow"> Arrow</label>
+          <label class="opt"><input type="radio" name="q9" value="string"> String/chain</label>
+          <label class="opt"><input type="radio" name="q9" value="alchemy"> Alchemy circle</label>
+          <label class="opt"><input type="radio" name="q9" value="relic"> Relic/sigil</label>
+          <label class="opt"><input type="radio" name="q9" value="eye"> Odd eye</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:0,Emitter:1,Manipulator:0,Transmuter:2,Conjurer:0,Specialist:0">
+          <legend>10) Your talent ceiling feels…</legend>
+          <label class="opt"><input type="radio" name="q10" value="linear"> Linear & grindable</label>
+          <label class="opt"><input type="radio" name="q10" value="burst"> Burst-based</label>
+          <label class="opt"><input type="radio" name="q10" value="leverage"> Leverage dependent</label>
+          <label class="opt"><input type="radio" name="q10" value="alchemy"> Property-shift</label>
+          <label class="opt"><input type="radio" name="q10" value="forge"> Forging/manifest</label>
+          <label class="opt"><input type="radio" name="q10" value="unknown"> Unknown</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:0,Emitter:0,Manipulator:1,Transmuter:0,Conjurer:0,Specialist:2">
+          <legend>11) You love…</legend>
+          <label class="opt"><input type="radio" name="q11" value="fair"> Fair tests</label>
+          <label class="opt"><input type="radio" name="q11" value="clean"> Clean shots</label>
+          <label class="opt"><input type="radio" name="q11" value="mind"> Mind games</label>
+          <label class="opt"><input type="radio" name="q11" value="weird"> Weird hacks</label>
+          <label class="opt"><input type="radio" name="q11" value="craft"> Crafting</label>
+          <label class="opt"><input type="radio" name="q11" value="fate"> Fate</label>
+        </fieldset>
+        <fieldset class="card q" data-map="Enhancer:2,Emitter:0,Manipulator:0,Transmuter:0,Conjurer:0,Specialist:1">
+          <legend>12) Your weakness is…</legend>
+          <label class="opt"><input type="radio" name="q12" value="reck"> Recklessness</label>
+          <label class="opt"><input type="radio" name="q12" value="sterile"> Too sterile</label>
+          <label class="opt"><input type="radio" name="q12" value="cold"> Over-calculating</label>
+          <label class="opt"><input type="radio" name="q12" value="incons"> Inconsistent</label>
+          <label class="opt"><input type="radio" name="q12" value="overprep"> Over-prep</label>
+          <label class="opt"><input type="radio" name="q12" value="wild"> Chaotic</label>
+        </fieldset>
+      </form>
+      <div class="card">
+        <button class="btn primary" onclick="calculateAffinityExtended()">Lock In Affinities →</button>
+      </div>
+      <div class="card">
+        <h3>Your Affinity Spread</h3>
+        <div class="row"><div class="grow">Enhancer</div><div class="grow statbar"><span id="bEnh"></span></div><div id="pEnh" class="mono"></div></div>
+        <div class="row"><div class="grow">Emitter</div><div class="grow statbar"><span id="bEmi"></span></div><div id="pEmi" class="mono"></div></div>
+        <div class="row"><div class="grow">Manipulator</div><div class="grow statbar"><span id="bMan"></span></div><div id="pMan" class="mono"></div></div>
+        <div class="row"><div class="grow">Transmuter</div><div class="grow statbar"><span id="bTra"></span></div><div id="pTra" class="mono"></div></div>
+        <div class="row"><div class="grow">Conjurer</div><div class="grow statbar"><span id="bCon"></span></div><div id="pCon" class="mono"></div></div>
+        <div class="row"><div class="grow">Specialist</div><div class="grow statbar"><span id="bSpe"></span></div><div id="pSpe" class="mono"></div></div>
+      </div>
+    </section>
+
+    <!-- Phase 2: AI-like Ability Builder Questionnaire -->
+    <section id="phase2" class="phase">
+      <div class="card">
+        <h2>Phase 2 — Ability Builder (Guided)</h2>
+        <p class="note">Answer to let the system auto-pick items, elements, and <em>conditions</em> (vows & limitations). You can still retune later.</p>
+      </div>
+      <form id="builderForm" class="grid cols-2">
+        <fieldset class="card q"><legend>A) Elemental leaning?</legend>
+          <label class="opt"><input type="radio" name="el" value="fire"> Fire / heat</label>
+          <label class="opt"><input type="radio" name="el" value="water"> Water / ice</label>
+          <label class="opt"><input type="radio" name="el" value="wind"> Wind / sound</label>
+          <label class="opt"><input type="radio" name="el" value="earth"> Earth / metal</label>
+          <label class="opt"><input type="radio" name="el" value="light"> Light / electricity</label>
+          <label class="opt"><input type="radio" name="el" value="shadow"> Shadow / void</label>
+        </fieldset>
+        <fieldset class="card q"><legend>B) Combat posture?</legend>
+          <label class="opt"><input type="radio" name="post" value="duelist"> Duelist</label>
+          <label class="opt"><input type="radio" name="post" value="sniper"> Sniper</label>
+          <label class="opt"><input type="radio" name="post" value="tact"> Tactician</label>
+          <label class="opt"><input type="radio" name="post" value="rogue"> Rogue</label>
+          <label class="opt"><input type="radio" name="post" value="warden"> Warden</label>
+          <label class="opt"><input type="radio" name="post" value="wildcard"> Wildcard</label>
+        </fieldset>
+        <fieldset class="card q"><legend>C) Signature medium?</legend>
+          <label class="opt"><input type="radio" name="med" value="weapon"> Weapon</label>
+          <label class="opt"><input type="radio" name="med" value="hands"> Hands / body</label>
+          <label class="opt"><input type="radio" name="med" value="artifact"> Artifact / charm</label>
+          <label class="opt"><input type="radio" name="med" value="mark"> Mark / seal</label>
+          <label class="opt"><input type="radio" name="med" value="zone"> Zone / field</label>
+          <label class="opt"><input type="radio" name="med" value="fam"> Familiar / clone</label>
+        </fieldset>
+        <fieldset class="card q"><legend>D) Risk appetite?</legend>
+          <label class="opt"><input type="radio" name="risk" value="low"> Low risk / steady buffs</label>
+          <label class="opt"><input type="radio" name="risk" value="mid"> Mid risk / big payoffs</label>
+          <label class="opt"><input type="radio" name="risk" value="high"> High risk / extreme power</label>
+        </fieldset>
+        <fieldset class="card q"><legend>E) Trigger conditions that fit you?</legend>
+          <label class="opt"><input type="checkbox" name="trig" value="oath"> Spoken oath</label>
+          <label class="opt"><input type="checkbox" name="trig" value="mark"> Blood mark</label>
+          <label class="opt"><input type="checkbox" name="trig" value="timer"> Time limit</label>
+          <label class="opt"><input type="checkbox" name="trig" value="chain"> Target bound</label>
+          <label class="opt"><input type="checkbox" name="trig" value="sac"> Temporary sacrifice</label>
+          <label class="opt"><input type="checkbox" name="trig" value="ally"> With an ally nearby</label>
+        </fieldset>
+        <fieldset class="card q"><legend>F) Theme words (pick any)</legend>
+          <label class="opt"><input type="checkbox" name="theme" value="speed"> speed</label>
+          <label class="opt"><input type="checkbox" name="theme" value="precision"> precision</label>
+          <label class="opt"><input type="checkbox" name="theme" value="endurance"> endurance</label>
+          <label class="opt"><input type="checkbox" name="theme" value="control"> control</label>
+          <label class="opt"><input type="checkbox" name="theme" value="deception"> deception</label>
+          <label class="opt"><input type="checkbox" name="theme" value="creation"> creation</label>
+        </fieldset>
+        <fieldset class="card q"><legend>G) Morality slider?</legend>
+          <label class="opt"><input type="radio" name="moral" value="hero"> Heroic</label>
+          <label class="opt"><input type="radio" name="moral" value="grey"> Grey</label>
+          <label class="opt"><input type="radio" name="moral" value="anti"> Anti-heroic</label>
+        </fieldset>
+        <fieldset class="card q"><legend>H) Resource you protect?</legend>
+          <label class="opt"><input type="radio" name="res" value="friends"> Friends</label>
+          <label class="opt"><input type="radio" name="res" value="family"> Family</label>
+          <label class="opt"><input type="radio" name="res" value="knowledge"> Knowledge</label>
+          <label class="opt"><input type="radio" name="res" value="freedom"> Freedom</label>
+          <label class="opt"><input type="radio" name="res" value="legacy"> Legacy</label>
+        </fieldset>
+        <fieldset class="card q"><legend>I) Weakness you accept?</legend>
+          <label class="opt"><input type="radio" name="weak" value="fatigue"> Fatigue on use</label>
+          <label class="opt"><input type="radio" name="weak" value="cooldown"> Cooldown window</label>
+          <label class="opt"><input type="radio" name="weak" value="blindspot"> Blind spot</label>
+          <label class="opt"><input type="radio" name="weak" value="focus"> Needs focus</label>
+          <label class="opt"><input type="radio" name="weak" value="range"> Range-limited</label>
+        </fieldset>
+        <fieldset class="card q"><legend>J) Style aesthetic?</legend>
+          <label class="opt"><input type="radio" name="style" value="sleek"> Sleek / modern</label>
+          <label class="opt"><input type="radio" name="style" value="grim"> Grim / gothic</label>
+          <label class="opt"><input type="radio" name="style" value="arcane"> Arcane / sigils</label>
+          <label class="opt"><input type="radio" name="style" value="tech"> Tech / devices</label>
+          <label class="opt"><input type="radio" name="style" value="wild"> Wild / primal</label>
+        </fieldset>
+      </form>
+      <div class="card">
+        <button class="btn primary" onclick="autoPickAbility()">Auto-Pick Items & Conditions →</button>
+        <button class="btn" onclick="goToPhase(1)">← Back</button>
+      </div>
+      <div id="autoPicks" class="card" style="display:none">
+        <h3>Suggested Ability Loadout</h3>
+        <div id="pickSummary" class="note"></div>
+        <div class="grid cols-3">
+          <div class="card"><h4>Top Item</h4><div id="pickItem"></div></div>
+          <div class="card"><h4>Core Element</h4><div id="pickElement"></div></div>
+          <div class="card"><h4>Vows & Conditions</h4><div id="pickConditions"></div></div>
+        </div>
+        <div class="note">Confidence: <span id="pickConf" class="mono"></span></div>
+        <div class="row"><button class="btn primary" onclick="proceedAutoBuild()">Looks good → Build it</button><button class="btn" onclick="retuneAbility()">Retune</button></div>
+      </div>
+    </section>
+
+    <!-- Phase 3: Auto Stats + Big Pie Chart + Image/Video -->
+    <section id="phase3" class="phase">
+      <div class="card">
+        <h2>Phase 3 — Auto-Tuned Ability</h2>
+        <p class="note">Stats and category weights generated from your affinity + choices. No input needed — you can retune.</p>
+        <div class="row"><button class="btn" onclick="retuneEnhancement()">Retune</button><button class="btn primary" onclick="showPhase4()">Proceed →</button></div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card chartWrap big">
+          <h3>Ability Ratings (Pie)</h3>
+          <canvas id="pieChart" height="300"></canvas>
+        </div>
+        <div class="card">
+          <h3>Your Nen Ability in Action</h3>
+          <img id="abilityImg" alt="Ability Image" />
+          <div class="row"><button class="btn" onclick="generateAbilityImage()">🔁 Regenerate Image</button><button id="genVideoBtn" class="btn" onclick="generateAbilityVideo()">🎬 Generate Video</button></div>
+          <div class="note" id="videoStatus"></div>
+          <video id="abilityVideo" style="width:100%;margin-top:8px;" controls loop muted playsinline></video>
+        </div>
+      </div>
+      <div class="grid cols-3">
+        <div class="card"><h4>Strength</h4><div id="stStrength" class="pill"></div></div>
+        <div class="card"><h4>Versatility</h4><div id="stVers" class="pill"></div></div>
+        <div class="card"><h4>Smarts</h4><div id="stSmart" class="pill"></div></div>
+        <div class="card"><h4>Nen Usage</h4><div id="stNen" class="pill"></div></div>
+        <div class="card"><h4>Offense</h4><div id="stOff" class="pill"></div></div>
+        <div class="card"><h4>Defense</h4><div id="stDef" class="pill"></div></div>
+      </div>
+    </section>
+
+    <!-- Phase 4: Placement + Big Chart + Story Maker -->
+    <section id="phase4" class="phase">
+      <div class="card">
+        <h2>Phase 4 — World Placement + Story</h2>
+        <p class="note">We map your stats to roles and generate a short origin scene.</p>
+        <div class="row"><button class="btn" onclick="goToPhase(3)">← Back</button><button class="btn primary" onclick="showPhase5()">Proceed →</button></div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card chartWrap big">
+          <h3>Role Fit (Radar)</h3>
+          <canvas id="radarChart" height="320"></canvas>
+        </div>
+        <div class="card">
+          <h3>Placement</h3>
+          <div id="placementText"></div>
+          <h3 style="margin-top:16px">Origin Story</h3>
+          <div id="originStory" class="note"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Phase 5: Arc Placement + Story + Survival -->
+    <section id="phase5" class="phase">
+      <div class="card">
+        <h2>Phase 5 — Arc Assignment & Survival</h2>
+        <p class="note">We place you in an HxH-style arc and narrate your opening moves. Survival odds are computed from your build.</p>
+        <div class="row"><button class="btn" onclick="goToPhase(4)">← Back</button><button class="btn" onclick="restartExam()">Restart</button></div>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Arc</h3>
+          <div id="arcName" class="pill"></div>
+          <h3>Survival Chance</h3>
+          <div class="statbar"><span id="survivalBar"></span></div>
+          <div id="survivalPct" class="mono"></div>
+          <h3 style="margin-top:16px">Story Beat</h3>
+          <div id="arcStory" class="note"></div>
+        </div>
+        <div class="card chartWrap big">
+          <h3>Arc Risk vs Your Build</h3>
+          <canvas id="barChart" height="320"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Music -->
+  <audio id="music1" loop><source src="phase1.mp3" type="audio/mp3"></audio>
+  <audio id="music2" loop><source src="phase2.mp3" type="audio/mp3"></audio>
+  <audio id="music3" loop><source src="phase3.mp3" type="audio/mp3"></audio>
+
+<script>
+// Global state
+let affinity = {Enhancer:0,Emitter:0,Manipulator:0,Transmuter:0,Conjurer:0,Specialist:0};
+let picks = { item:'', element:'', conditions:[], conf:0 };
+let stats = { Strength:0, Versatility:0, Smarts:0, Nen:0, Offense:0, Defense:0 };
+let charts = { pie:null, radar:null, bar:null };
+let currentPhase=1;
+const phases = [null, ...['phase1','phase2','phase3','phase4','phase5'].map(id=>document.getElementById(id))];
+
+// Music
+const music1=document.getElementById('music1');
+const music2=document.getElementById('music2');
+const music3=document.getElementById('music3');
+let musicEnabled=true, fadeInterval=null;
+function fadeOut(audio,cb){clearInterval(fadeInterval);fadeInterval=setInterval(()=>{if(audio.volume>0.05)audio.volume-=0.05;else{audio.volume=0;audio.pause();clearInterval(fadeInterval);if(cb)cb();}},50);} 
+function fadeIn(audio){audio.volume=0;if(musicEnabled)audio.play();clearInterval(fadeInterval);fadeInterval=setInterval(()=>{if(audio.volume<1)audio.volume+=0.05;else clearInterval(fadeInterval);},50);} 
+document.getElementById('music-toggle').onclick=()=>{musicEnabled=!musicEnabled; if(musicEnabled){ if(currentPhase===1)fadeIn(music1); else if(currentPhase===2)fadeIn(music2); else fadeIn(music3);} else { fadeOut(music1); fadeOut(music2); fadeOut(music3);} };
+
+function goToPhase(n){ phases[currentPhase].classList.remove('active'); phases[n].classList.add('active'); if(currentPhase===1&&n===2){fadeOut(music1,()=>fadeIn(music2));} if(currentPhase===2&&n===3){fadeOut(music2,()=>fadeIn(music3));} currentPhase=n; }
+
+// Phase 1: compute affinity from answers
+function calculateAffinityExtended(){
+  const form=document.getElementById('affinityForm');
+  const fieldsets=form.querySelectorAll('fieldset');
+  const temp={Enhancer:0,Emitter:0,Manipulator:0,Transmuter:0,Conjurer:0,Specialist:0};
+  for(const fs of fieldsets){
+    const sel=fs.querySelector('input[type=radio]:checked');
+    if(!sel){ alert('Please answer all questions in Phase 1.'); return; }
+    const map=fs.dataset.map.split(',').reduce((a,k)=>{const [key,v]=k.split(':'); a[key.trim()]=parseInt(v,10);return a;},{});
+    Object.entries(map).forEach(([k,v])=>temp[k]+=v);
+  }
+  const total=Object.values(temp).reduce((a,b)=>a+b,0);
+  Object.keys(temp).forEach(k=>affinity[k]=Math.round((temp[k]/total)*100));
+  const setBar=(idBar,idTxt,val)=>{ document.getElementById(idBar).style.width=val+'%'; document.getElementById(idTxt).textContent=val+'%'; };
+  setBar('bEnh','pEnh',affinity.Enhancer);
+  setBar('bEmi','pEmi',affinity.Emitter);
+  setBar('bMan','pMan',affinity.Manipulator);
+  setBar('bTra','pTra',affinity.Transmuter);
+  setBar('bCon','pCon',affinity.Conjurer);
+  setBar('bSpe','pSpe',affinity.Specialist);
+  setTimeout(()=>goToPhase(2),400);
+}
+
+// Phase 2: rule-based "AI" picker
+function autoPickAbility(){
+  const f=document.getElementById('builderForm');
+  function val(name){ const r=[...f.querySelectorAll(`[name=${name}]`)]; const chk=r.find(i=>i.checked); return chk?chk.value:null; }
+  function vals(name){ return [...f.querySelectorAll(`[name=${name}]:checked`)].map(i=>i.value); }
+  const el=val('el'), post=val('post'), med=val('med'), risk=val('risk'), moral=val('moral'), res=val('res'), weak=val('weak'), style=val('style');
+  const trig=vals('trig'); const theme=vals('theme');
+  if(!el||!post||!med||!risk||!moral||!res||!weak||!style){ alert('Please answer all radio questions.'); return; }
+
+  const primary = Object.entries(affinity).sort((a,b)=>b[1]-a[1])[0][0];
+  let itemPool={ weapon:['katana','chain-blade','polearm','gauntlets','revolver','chakram'], hands:['knuckle wraps','aura gloves','sigil palms'], artifact:['talisman','sealed ring','omen dice','oracle cards'], mark:['brand seal','contract glyph','omen tattoo'], zone:['aura dome','magnet field','thread web'], fam:['shadow double','paper familiar','aura beast'] };
+  let item=(itemPool[med]||['focus shard'])[Math.floor(Math.random()* (itemPool[med]||['focus shard']).length)];
+  let element=el;
+  if(primary==='Transmuter' && el==='earth') element='metal';
+  if(primary==='Emitter' && el==='water') element='ice';
+  if(primary==='Conjurer' && med==='artifact' && el==='light') element='crystal';
+
+  const conds=[];
+  if(risk==='high') conds.push('Power triples under 30s time-limit');
+  if(risk!=='low' && trig.includes('oath')) conds.push('Must speak a binding phrase before use');
+  if(trig.includes('mark')) conds.push('Costs small blood mark each activation');
+  if(trig.includes('timer')) conds.push('Cooldown applies after burst window');
+  if(trig.includes('chain')) conds.push('Targets must be tagged first');
+  if(trig.includes('sac')) conds.push('Temporary stat reduction after use');
+  if(trig.includes('ally')) conds.push('Gains bonus with ally in 10m');
+  const weakMap={fatigue:'Increases stamina drain', cooldown:'Imposes forced downtime', blindspot:'Creates blind angle', focus:'Breaks if concentration lost', range:'Falls off past optimal range'};
+  conds.push(weakMap[weak]||'Minor drawback');
+
+  let conf = 60 + Math.floor( (affinity[primary]/2) + (theme.length*4) + (risk==='high'?4:0) );
+  if(conf>97) conf=97;
+
+  picks = { item, element, conditions:conds.slice(0,5), conf };
+
+  document.getElementById('pickSummary').textContent = `Primary: ${primary} • Themes: ${theme.join(', ')||'—'} • Style: ${style}`;
+  document.getElementById('pickItem').textContent = `${item}`;
+  document.getElementById('pickElement').textContent = `${element}`;
+  document.getElementById('pickConditions').innerHTML = conds.map(c=>`<span class="pill">${c}</span>`).join('');
+  document.getElementById('pickConf').textContent = conf+'%';
+  document.getElementById('autoPicks').style.display='block';
+}
+
+function proceedAutoBuild(){
+  const base = {
+    Strength: 30 + Math.floor(affinity.Enhancer*0.5) + (picks.item.match(/gauntlet|knuckle|katana/) ? 10:0),
+    Versatility: 20 + Math.floor(affinity.Transmuter*0.4) + (picks.conditions.length*3),
+    Smarts: 20 + Math.floor(affinity.Manipulator*0.45) + (picks.conditions.includes('Targets must be tagged first')?8:0),
+    Nen: 25 + Math.floor((affinity.Enhancer+affinity.Emitter+affinity.Transmuter)/9),
+    Offense: 25 + Math.floor((affinity.Emitter*0.35)+(affinity.Enhancer*0.25)) + (picks.element==='fire'||picks.element==='metal'?8:0),
+    Defense: 20 + Math.floor((affinity.Conjurer*0.45)) + (picks.item.match(/shield|dome|gauntlet/)?8:0)
+  };
+  Object.keys(base).forEach(k=>{ base[k]=Math.max(5, Math.min(99, base[k])); });
+  stats = base;
+  buildPie();
+  generateAbilityImage();
+  goToPhase(3);
+  document.getElementById('stStrength').textContent = stats.Strength;
+  document.getElementById('stVers').textContent = stats.Versatility;
+  document.getElementById('stSmart').textContent = stats.Smarts;
+  document.getElementById('stNen').textContent = stats.Nen;
+  document.getElementById('stOff').textContent = stats.Offense;
+  document.getElementById('stDef').textContent = stats.Defense;
+}
+
+// Charts
+function buildPie(){
+  const ctx=document.getElementById('pieChart');
+  if(charts.pie){ charts.pie.destroy(); }
+  charts.pie = new Chart(ctx,{ type:'pie', data:{ labels:Object.keys(stats), datasets:[{ data:Object.values(stats) }] }, options:{ plugins:{ legend:{ labels:{ color:'#ddd' } } } } });
+}
+
+function buildRadar(){
+  const roles = {
+    'Heavens Arena Fighter':[70,40,35,55,75,45],
+    'Licensed Hunter':[60,70,65,60,60,60],
+    'Elite Hunter':[80,75,70,70,75,70],
+    'Exam Failer':[30,25,20,25,25,20]
+  };
+  const user=[stats.Strength,stats.Versatility,stats.Smarts,stats.Nen,stats.Offense,stats.Defense];
+  const ctx=document.getElementById('radarChart');
+  if(charts.radar){ charts.radar.destroy(); }
+  charts.radar = new Chart(ctx,{ type:'radar', data:{ labels:['Strength','Versatility','Smarts','Nen','Offense','Defense'], datasets:[ {label:'You', data:user, borderColor:'#35f06e', backgroundColor:'rgba(53,240,110,0.18)'}, {label:'Elite Hunter', data:roles['Elite Hunter'], borderColor:'#6aa8ff', backgroundColor:'rgba(106,168,255,0.15)'} ] }, options:{ scales:{ r:{ grid:{ color:'#333' }, angleLines:{ color:'#333' }, pointLabels:{ color:'#ddd' }, ticks:{ display:false } } }, plugins:{ legend:{ labels:{ color:'#ddd' } } } });
+}
+
+function buildBar(arc){
+  const ctx=document.getElementById('barChart');
+  if(charts.bar){ charts.bar.destroy(); }
+  const risk= arc.risk;
+  charts.bar=new Chart(ctx,{ type:'bar', data:{ labels:['Strength','Versatility','Smarts','Nen','Offense','Defense'], datasets:[ {label:'Your Build', data:[stats.Strength,stats.Versatility,stats.Smarts,stats.Nen,stats.Offense,stats.Defense]}, {label:`Arc Risk: ${arc.name}`, data:[risk.Strength,risk.Versatility,risk.Smarts,risk.Nen,risk.Offense,risk.Defense]} ] }, options:{ responsive:true, plugins:{ legend:{ labels:{ color:'#ddd' } } }, scales:{ x:{ ticks:{ color:'#ddd' } }, y:{ ticks:{ color:'#ddd' }, grid:{ color:'#333' } } } });
+}
+
+// Phase 3 media
+async function generateAbilityImage(){
+  const description = `${topAffinity()}-leaning ${picks.item} infused with ${picks.element} — ${picks.conditions.slice(0,2).join(', ')} — dynamic anime action, aura glow, cinematic lighting`;
+  try{
+    const r= await fetch('/api/generate-image',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt: description }) });
+    const data=await r.json();
+    document.getElementById('abilityImg').src = data.image_url || `https://via.placeholder.com/800x500?text=${encodeURIComponent(description)}`;
+  }catch(e){ document.getElementById('abilityImg').src = `https://via.placeholder.com/800x500?text=${encodeURIComponent('Preview failed')}`; }
+}
+
+async function generateAbilityVideo(){
+  const btn=document.getElementById('genVideoBtn');
+  const status=document.getElementById('videoStatus');
+  const videoEl=document.getElementById('abilityVideo');
+  const prompt = `${topAffinity()}-leaning ${picks.item} (${picks.element}) — ${picks.conditions.slice(0,2).join(', ')} — dynamic anime action, cinematic camera, particles`;
+  btn.disabled=true; status.textContent='requesting video…';
+  try{
+    const r= await fetch('/api/generate-video',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt }) });
+    const data= await r.json();
+    if(data.video_url){ status.textContent='render complete'; videoEl.src=data.video_url; videoEl.play(); }
+    else if(data.job_id){ status.textContent='queued…'; const iv=setInterval(async()=>{ const pr=await fetch(`/api/video-status?id=${encodeURIComponent(data.job_id)}`); const pj=await pr.json(); if(pj.status==='succeeded'&&pj.video_url){ clearInterval(iv); status.textContent='render complete'; videoEl.src=pj.video_url; videoEl.play(); } }, 3000); }
+    else { throw new Error('Unexpected response'); }
+  }catch(e){ status.textContent='video generation failed'; videoEl.src='https://files.catbox.moe/3q7t5x.mp4'; videoEl.play(); }
+  finally{ btn.disabled=false; }
+}
+
+function topAffinity(){ return Object.entries(affinity).sort((a,b)=>b[1]-a[1])[0][0]; }
+
+// Phase 4: placement + origin story
+function showPhase4(){
+  goToPhase(4);
+  buildRadar();
+  const score = Math.round((stats.Strength+stats.Versatility+stats.Smarts+stats.Nen+stats.Offense+stats.Defense)/6);
+  let role='Human';
+  if(score>80) role='Elite Hunter'; else if(score>65) role='Licensed Hunter'; else if(score>50) role='Heavens Arena Fighter'; else if(score>35) role='Hunter Exam Failer';
+  document.getElementById('placementText').innerHTML = `<div class="pill">${role}</div><div class="note">Avg Power Index: <span class="mono">${score}</span></div>`;
+  const para = originTemplate(role);
+  document.getElementById('originStory').innerHTML = para;
+}
+
+function originTemplate(role){
+  return `On a rain-dark rooftop, your ${picks.item} hums with ${picks.element}. You breathe in, steady. <em>${role}</em> isn’t a title you wear; it’s a consequence of choices. 
+  Tonight, your vow — ${picks.conditions[0]||'no vow'} — binds the aura tight. A glimmer flickers in the alley: an informant, a trap, or both.
+  When motion breaks the streetlights, you move first — not as a savior, not as a villain, but as a hunter of outcomes.`;
+}
+
+// Phase 5: arc, survival, story
+function showPhase5(){
+  goToPhase(5);
+  const arcs=[
+    {name:'Hunter Exam Redux', risk:{Strength:40,Versatility:35,Smarts:45,Nen:30,Offense:40,Defense:35}, seed:'trial'},
+    {name:'Heavens Arena Circuit', risk:{Strength:55,Versatility:40,Smarts:35,Nen:45,Offense:60,Defense:40}, seed:'arena'},
+    {name:'Yorknew Underbelly', risk:{Strength:45,Versatility:50,Smarts:70,Nen:55,Offense:50,Defense:45}, seed:'mafia'},
+    {name:'Greed Island Remix', risk:{Strength:50,Versatility:70,Smarts:55,Nen:60,Offense:55,Defense:50}, seed:'game'},
+    {name:'Chimera Outlands', risk:{Strength:80,Versatility:60,Smarts:60,Nen:70,Offense:80,Defense:65}, seed:'apex'}
+  ];
+  const arc=arcs[Math.floor(Math.random()*arcs.length)];
+  document.getElementById('arcName').textContent=arc.name;
+  buildBar(arc);
+  const you=[stats.Strength,stats.Versatility,stats.Smarts,stats.Nen,stats.Offense,stats.Defense];
+  const risk=[arc.risk.Strength,arc.risk.Versatility,arc.risk.Smarts,arc.risk.Nen,arc.risk.Offense,arc.risk.Defense];
+  const margin = you.reduce((acc,v,i)=>acc+(v-risk[i]),0)/6;
+  let survive = Math.max(5, Math.min(95, Math.round(50 + margin*0.6)));
+  document.getElementById('survivalBar').style.width=survive+'%';
+  document.getElementById('survivalPct').textContent=survive+'%';
+  document.getElementById('arcStory').innerHTML = arcStoryTemplate(arc.name, survive);
+}
+
+function arcStoryTemplate(name, pct){
+  return `In <b>${name}</b>, every corridor has two exits and neither is marked. Your ${picks.item} stirs, ${picks.element} light threading your fingers. 
+  At <i>${pct}%</i> odds, fortune isn’t promised — you manufacture it: a quick oath, a quiet step, and a strike when the world blinks.`;
+}
+
+function retuneAbility(){ alert('Retune enabled: adjust Phase 2 answers and auto-pick again.'); }
+function retuneEnhancement(){ alert('Retune enabled: regenerate auto stats by re-running the build.'); }
+function restartExam(){ location.reload(); }
+
+window.onload=()=>{ try{ music1.play(); }catch(e){} };
+</script>
+</body>
+</html>
